@@ -1,0 +1,11 @@
+{
+  "name": "nuxt-easy-durable-test",
+  "main": ".output/server/index.mjs",
+  "assets": { "directory": ".output/public", "binding": "ASSETS" },
+  "compatibility_date": "2025-07-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "$DurableObject", "class_name": "$DurableObject" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["$DurableObject"] }]
+}
