@@ -22,10 +22,25 @@ const sendPeers = (peers: Peer[]) =>
     peers: peers.map((peer) => ({ id: peer.id, name: nameOf(peer) })),
   });
 
+// Keeps a row per join in the instance's SQLite database, which shows up in Data Studio.
+const saveJoin = (peer: Peer) => {
+  // crossws doesn't expose the Durable Object on the peer
+  const { sql } = (peer as any)._internal.durable.ctx.storage;
+  sql.exec(
+    "CREATE TABLE IF NOT EXISTS joins (id INTEGER PRIMARY KEY, name TEXT NOT NULL, joined_at TEXT NOT NULL)",
+  );
+  sql.exec(
+    "INSERT INTO joins (name, joined_at) VALUES (?, ?)",
+    nameOf(peer),
+    new Date().toISOString(),
+  );
+};
+
 export default defineDurableHandler(
   (url) => `room:${url.pathname.split("/").pop()}`,
   {
     open(peer) {
+      saveJoin(peer);
       // crossws calls open before the Durable Object has answered the upgrade, so send just after
       setTimeout(() => sendPeers([...peer.peers]), 0);
     },
